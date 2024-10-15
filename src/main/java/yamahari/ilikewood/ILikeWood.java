@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import yamahari.ilikewood.config.ILikeWoodConfig;
+import yamahari.ilikewood.mixin.ConfigTrackerAccessor;
 import yamahari.ilikewood.registry.*;
 import yamahari.ilikewood.registry.objecttype.WoodenBlockType;
 import yamahari.ilikewood.registry.objecttype.WoodenEntityType;
@@ -49,9 +50,19 @@ public final class ILikeWood {
     public static final List<IModPlugin> PLUGINS = new ArrayList<>();
 
     public ILikeWood() {
+        /*
+            Config Load Fix Thanks to:
+                https://discord.com/channels/176780432371744769/690666971162869810/728222903698718742
+                https://github.com/Tfarcenim/Darker-Loading-Screen/tree/master
+        */
+
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ILikeWoodConfig.COMMON_SPEC);
-        ConfigTracker.INSTANCE.loadConfigs(ModConfig.Type.COMMON, FMLPaths.CONFIGDIR.get());
+
+        ConfigTrackerAccessor configTrackerAccessor = ((ConfigTrackerAccessor)ConfigTracker.INSTANCE);
+        configTrackerAccessor.getConfigSets().get(ModConfig.Type.CLIENT)
+                .stream().filter(modConfig -> modConfig.getModId().equals(Constants.MOD_ID)).findFirst()
+                .ifPresent(modConfig -> configTrackerAccessor.openConfig1(modConfig, FMLPaths.CONFIGDIR.get()));
 
         getPlugins();
 

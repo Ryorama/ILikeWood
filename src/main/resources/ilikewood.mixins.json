@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "yamahari.ilikewood.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "ilikewood.mixins.refmap.json",
+  "mixins": [
+    "ConfigTrackerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

@@ -1,7 +1,22 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
 plugins {
     id 'java'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0, 6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+}
+
+apply plugin: 'org.spongepowered.mixin'
+
+mixin {
+    add sourceSets.main, "ilikewood.mixins.refmap.json"
 }
 
 version = "${version_mc}-${version_major}.${version_api}.${version_minor}.${version_patch}"
@@ -9,10 +24,6 @@ group = "yamahari.${mod_id}"
 archivesBaseName = "${mod_id}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-dependencies {
-    minecraft "net.minecraftforge:forge:${version_mc}-${version_forge}"
-}
 
 sourceSets {
     main {
@@ -39,6 +50,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
+            arg "--mixin=ilikewood.mixins.json"
             mods {
                 ilikewood {
                     source sourceSets.main
@@ -51,6 +63,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
+            arg "--mixin=ilikewood.mixins.json"
             mods {
                 ilikewood {
                     source sourceSets.main
@@ -64,6 +77,7 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             property "${mod_id}.datagen.modid", "${mod_id}"
+            arg "--mixin=ilikewood.mixins.json"
             args '--mod', "${mod_id}",
                     '--all',
                     '--output', file("src/data/resources/dummy"),
@@ -92,9 +106,13 @@ repositories {
 }
 
 dependencies {
+    minecraft "net.minecraftforge:forge:${version_mc}-${version_forge}"
+
     compileOnly fg.deobf("mezz.jei:jei-${version_mc}-common-api:${version_jei}")
     compileOnly fg.deobf("mezz.jei:jei-${version_mc}-forge-api:${version_jei}")
     runtimeOnly fg.deobf("mezz.jei:jei-${version_mc}-forge:${version_jei}")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.+:processor'
 
     implementation sourceSets.api.output
 
@@ -148,7 +166,8 @@ jar {
             "Implementation-Version"  : "${project.version}",
             "Implementation-Vendor"   : "yamahari",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "Automatic-Module-Name"   : "${mod_id}"
+            "Automatic-Module-Name"   : "${mod_id}",
+            "MixinConfigs": "ilikewood.mixins.json"
     ])
 
     finalizedBy 'reobfJar'
